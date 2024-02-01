@@ -145,6 +145,7 @@ func (i *Isolate) Dispose() {
 	}
 	C.IsolateDispose(i.ptr)
 	i.ptr = nil
+	i.cbs = nil
 }
 
 // ThrowException schedules an exception to be thrown when returning to
