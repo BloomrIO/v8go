@@ -22,8 +22,8 @@ import (
 	%s
 )
 """
-
-CHROME_VERSIONS_URL = "https://omahaproxy.appspot.com/all.json?os=linux&channel=stable"
+# find another json equivalent to get latest v8 stable version
+CHROME_VERSIONS_URL = ""
 V8_VERSION_FILE = "v8_version"
 
 deps_path = os.path.dirname(os.path.realpath(__file__))
@@ -33,78 +33,89 @@ v8_path = os.path.join(deps_path, "v8")
 v8_include_path = os.path.join(v8_path, "include")
 deps_include_path = os.path.join(deps_path, "include")
 
+
 def get_directories_names(path):
-  flist = []
-  for p in pathlib.Path(path).iterdir():
-    if p.is_dir():
-        flist.append(p.name)
-  return sorted(flist)
+    flist = []
+    for p in pathlib.Path(path).iterdir():
+        if p.is_dir():
+            flist.append(p.name)
+    return sorted(flist)
+
 
 def package_name(package, index, total):
-  name = f'_ "github.com/BloomrIO/v8go/deps/include/{package}"'
-  if (index + 1 == total):
-    return name
-  else:
-    return name + '\n'
+    name = f'_ "github.com/BloomrIO/v8go/deps/include/{package}"'
+    if (index + 1 == total):
+        return name
+    else:
+        return name + '\n'
+
 
 def create_include_vendor_file(src_path, directories):
-  package_names = []
-  total_directories = len(directories)
+    package_names = []
+    total_directories = len(directories)
 
-  for index, directory_name in enumerate(directories):
-    package_names.append(package_name(directory_name, index, total_directories))
+    for index, directory_name in enumerate(directories):
+        package_names.append(package_name(
+            directory_name, index, total_directories))
 
-  with open(os.path.join(src_path, 'vendor.go'), 'w') as temp_file:
-      temp_file.write(include_vendor_file_template % ('  '.join(package_names)))
+    with open(os.path.join(src_path, 'vendor.go'), 'w') as temp_file:
+        temp_file.write(include_vendor_file_template %
+                        ('  '.join(package_names)))
+
 
 def create_vendor_files(src_path):
-  directories = get_directories_names(src_path)
+    directories = get_directories_names(src_path)
 
-  create_include_vendor_file(src_path, directories)
+    create_include_vendor_file(src_path, directories)
 
-  for directory in directories:
-    directory_path = os.path.join(src_path, directory)
+    for directory in directories:
+        directory_path = os.path.join(src_path, directory)
 
-    vendor_go_file_path = os.path.join(directory_path, 'vendor.go')
+        vendor_go_file_path = os.path.join(directory_path, 'vendor.go')
 
-    if os.path.isfile(vendor_go_file_path):
-      continue
+        if os.path.isfile(vendor_go_file_path):
+            continue
 
-    with open(os.path.join(directory_path, 'vendor.go'), 'w') as temp_file:
-      temp_file.write(vendor_file_template % (directory, directory))
+        with open(os.path.join(directory_path, 'vendor.go'), 'w') as temp_file:
+            temp_file.write(vendor_file_template % (directory, directory))
+
 
 def update_v8_version_file(src_path, version):
-  with open(os.path.join(src_path, V8_VERSION_FILE), "w") as v8_file:
-    v8_file.write(version)
+    with open(os.path.join(src_path, V8_VERSION_FILE), "w") as v8_file:
+        v8_file.write(version)
+
 
 def read_v8_version_file(src_path):
-  v8_version_file = open(os.path.join(src_path, V8_VERSION_FILE), "r")
-  return v8_version_file.read().strip()
+    v8_version_file = open(os.path.join(src_path, V8_VERSION_FILE), "r")
+    return v8_version_file.read().strip()
+
 
 def get_latest_v8_info():
-  with urllib.request.urlopen(CHROME_VERSIONS_URL) as response:
-   json_response = response.read()
+    with urllib.request.urlopen(CHROME_VERSIONS_URL) as response:
+        json_response = response.read()
 
-  return json.loads(json_response)
+    return json.loads(json_response)
+
 
 # Current version
 current_v8_version_installed = read_v8_version_file(deps_path)
 
 # Get latest version
-latest_v8_info = get_latest_v8_info()
+# latest_v8_info = get_latest_v8_info()
+# latest_stable_v8_version = latest_v8_info[0]["versions"][0]["v8_version"]
 
-latest_stable_v8_version = latest_v8_info[0]["versions"][0]["v8_version"]
+latest_stable_v8_version = "12.2.281.12"
 
 if current_v8_version_installed != latest_stable_v8_version:
-  subprocess.check_call(["git", "fetch", "origin", latest_stable_v8_version],
-                        cwd=v8_path,
-                        env=env)
-  # checkout latest stable commit
-  subprocess.check_call(["git", "checkout", latest_stable_v8_version],
-                        cwd=v8_path,
-                        env=env)
+    subprocess.check_call(["git", "fetch", "origin", latest_stable_v8_version],
+                          cwd=v8_path,
+                          env=env)
+    # checkout latest stable commit
+    subprocess.check_call(["git", "checkout", latest_stable_v8_version],
+                          cwd=v8_path,
+                          env=env)
 
-  shutil.rmtree(deps_include_path)
-  shutil.copytree(v8_include_path, deps_include_path, dirs_exist_ok=True)
-  create_vendor_files(deps_include_path)
-  update_v8_version_file(deps_path, latest_stable_v8_version)
+    shutil.rmtree(deps_include_path)
+    shutil.copytree(v8_include_path, deps_include_path, dirs_exist_ok=True)
+    create_vendor_files(deps_include_path)
+    update_v8_version_file(deps_path, latest_stable_v8_version)
