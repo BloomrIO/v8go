@@ -39,3 +39,5 @@ jobs:
           branch: ${{steps.pr_metadata.outputs.pr_branch}}
           title: ${{steps.pr_metadata.outputs.pr_commit_message}}
           body: ${{steps.pr_metadata.outputs.pr_body}}
+          token: ${{secrets.MY_PAT}}
+          git-token: ${{secrets.MY_PAT}}
