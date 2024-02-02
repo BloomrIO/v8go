@@ -32,20 +32,6 @@ jobs:
           echo ::set-output name=pr_branch::"v8_$(cat deps/v8_version)_upgrade"
           echo ::set-output name=pr_commit_message::"Upgrade V8 binaries for $(cat deps/v8_version) version"
           echo ::set-output name=pr_body::"Auto-generated pull request to upgrade V8 binary for $(cat deps/v8_version) version"
-<<<<<<< HEAD
-      - name: Create branch
-        run: gh repo create-branch base_branch$(cat deps/v8_version) branch_to_merge
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Commit changes
-        run: git commit -am "Upgrade V8 binaries for $(cat deps/v8_version) version"
-      - name: Push changes
-        run: git push origin branch_to_merge
-      - name: Create pull request
-        run: gh pr create -B base_branch$(cat deps/v8_version) -H branch_to_merge --title 'Merge branch_to_merge into base_branch' --body 'Created by GitHub action, merge'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-=======
       - name: Create PR
         uses: peter-evans/create-pull-request@v6
         with:
@@ -53,4 +39,3 @@ jobs:
           branch: ${{steps.pr_metadata.outputs.pr_branch}}
           title: ${{steps.pr_metadata.outputs.pr_commit_message}}
           body: ${{steps.pr_metadata.outputs.pr_body}}
->>>>>>> parent of 7bfbdfe (replace gh action with native)
