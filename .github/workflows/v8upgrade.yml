@@ -32,10 +32,6 @@ jobs:
           echo ::set-output name=pr_branch::"v8_$(cat deps/v8_version)_upgrade"
           echo ::set-output name=pr_commit_message::"Upgrade V8 binaries for $(cat deps/v8_version) version"
           echo ::set-output name=pr_body::"Auto-generated pull request to upgrade V8 binary for $(cat deps/v8_version) version"
-      - name: Create branch
-        run: gh repo create-branch base_branch$(cat deps/v8_version) branch_to_merge
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Commit changes
         run: git commit -am "Upgrade V8 binaries for $(cat deps/v8_version) version"
       - name: Push changes
