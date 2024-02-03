@@ -1,0 +1,60 @@
+name: Build V8 with Multiple OS and Architectures
+
+#only use manually
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x86_64
+          - os: ubuntu-latest
+            arch: arm64
+          - os: macos-latest
+            arch: x86_64
+          - os: macos-latest
+            arch: arm64
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup Environment
+      run: |
+        if [ "${{ runner.os }}" == "Linux" ]; then
+          sudo apt-get update
+          sudo apt-get install -y curl git python3 lsb-release sudo
+        elif [ "${{ runner.os }}" == "macOS" ]; then
+          brew update
+          brew install git python
+        fi
+        git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+        echo "export PATH=$(pwd)/depot_tools:$PATH" >> $GITHUB_ENV
+
+    - name: Fetch and Build V8 for Architecture
+      run: |
+        fetch v8
+        cd v8
+        gclient sync
+        if [ "${{ matrix.arch }}" == "arm64" ]; then
+          tools/dev/v8gen.py arm64.release -- is_component_build=true
+        else
+          tools/dev/v8gen.py x64.release -- is_component_build=true
+        fi
+        ninja -C out.gn/${{ matrix.arch }}.release
+
+    - name: Create PR metadata
+        id: pr_metadata
+        run: |
+          echo ::set-output name=pr_branch::"v8_$(cat deps/v8_version)_upgrade"
+          echo ::set-output name=pr_commit_message::"Upgrade V8 binaries for $(cat deps/v8_version) version"
+          echo ::set-output name=pr_body::"Auto-generated pull request to upgrade V8 binary for $(cat deps/v8_version) version"
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{secrets.MY_PAT}}
+          commit-message: ${{steps.pr_metadata.outputs.pr_commit_message}}
+          branch: ${{steps.pr_metadata.outputs.pr_branch}}
+          title: ${{steps.pr_metadata.outputs.pr_commit_message}}
+          body: ${{steps.pr_metadata.outputs.pr_body}}
