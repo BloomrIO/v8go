@@ -1,4 +1,4 @@
-name: Build V8 with Multiple OS and Architectures
+name: Fetch & Build V8
 
 #only use manually
 on:
@@ -32,8 +32,10 @@ jobs:
           brew update
           brew install git python
         fi
-        git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+        git clone --depth=1 https://chromium.googlesource.com/chromium/tools/depot_tools.git
         echo "export PATH=$(pwd)/depot_tools:$PATH" >> $GITHUB_ENV
+        echo "DEPOT_TOOLS=$(pwd)/depot_tools" >> $GITHUB_ENV
+        echo "$(pwd)/depot_tools:$PATH" >> $GITHUB_PATH
 
     - name: Fetch and Build V8 for Architecture
       run: |
