@@ -23,6 +23,11 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+    - name: Pre-Clone Debugging Information
+      run: |
+        pwd
+        echo $PATH
+
     - name: Setup Environment
       run: |
         if [ "${{ runner.os }}" == "Linux" ]; then
