@@ -44,17 +44,27 @@ jobs:
         echo "DEPOT_TOOLS=$(pwd)/depot_tools" >> $GITHUB_ENV
         echo "$(pwd)/depot_tools:$PATH" >> $GITHUB_PATH
 
-    - name: Fetch and Build V8 for Architecture
+    - name: Fetch V8 and Setup Build
       run: |
-        ${{env.DEPOT_TOOLS}}/fetch v8
+        fetch v8
         cd v8
         gclient sync
+    
+        # Generate build files with gn
         if [ "${{ matrix.arch }}" == "arm64" ]; then
-          ${{env.DEPOT_TOOLS}}/tools/dev/v8gen.py arm64.release -- is_component_build=true
+          gn gen out.gn/arm64.release --args='is_component_build=true target_cpu="arm64" is_debug=false'
         else
-          ${{env.DEPOT_TOOLS}}/tools/dev/v8gen.py x64.release -- is_component_build=true
+          gn gen out.gn/x64.release --args='is_component_build=true target_cpu="x64" is_debug=false'
         fi
-        ninja -C out.gn/${{ matrix.arch }}.release
+      
+    - name: Build V8
+      run: |
+        cd ${{ github.workspace }}/v8
+        if [ "${{ matrix.arch }}" == "arm64" ]; then
+          ninja -C out.gn/arm64.release
+        else
+          ninja -C out.gn/x64.release
+        fi
 
     - name: Create PR metadata
       id: pr_metadata
