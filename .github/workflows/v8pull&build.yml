@@ -44,6 +44,12 @@ jobs:
         echo "DEPOT_TOOLS=$(pwd)/depot_tools" >> $GITHUB_ENV
         echo "$(pwd)/depot_tools:$PATH" >> $GITHUB_PATH
 
+    - name: Install ARM64 Sysroot for Linux
+      if: matrix.os == 'ubuntu-latest' && matrix.arch == 'arm64'
+      run: |
+        cd ${{ github.workspace }}/v8
+        ./build/linux/sysroot_scripts/install-sysroot.py --arch=arm64
+
     - name: Fetch V8 and Setup Build
       run: |
         fetch v8
