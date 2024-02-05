@@ -114,7 +114,7 @@ func TestMemoryLeak(t *testing.T) {
 	}
 }
 
-// https://github.com/rogchap/v8go/issues/186
+// https://github.com/BloomrIO/v8go/issues/186
 func TestRegistryFromJSON(t *testing.T) {
 	t.Parallel()
 

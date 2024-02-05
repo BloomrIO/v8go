@@ -107,7 +107,7 @@ static RtnError ExceptionError(TryCatch& try_catch,
 }
 
 m_value* tracked_value(m_ctx* ctx, m_value* val) {
-  // (rogchap) we track values against a context so that when the context is
+  // (BloomrIO) we track values against a context so that when the context is
   // closed (either manually or GC'd by Go) we can also release all the
   // values associated with the context;
   if (val->id == 0) {
@@ -526,7 +526,7 @@ TemplatePtr NewFunctionTemplate(IsolatePtr iso, int callback_ref) {
   Isolate::Scope isolate_scope(iso);
   HandleScope handle_scope(iso);
 
-  // (rogchap) We only need to store one value, callback_ref, into the
+  // (BloomrIO) We only need to store one value, callback_ref, into the
   // C++ callback function data, but if we needed to store more items we could
   // use an V8::Array; this would require the internal context from
   // iso->GetData(0)

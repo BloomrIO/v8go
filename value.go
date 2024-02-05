@@ -337,7 +337,7 @@ func (v *Value) IsNumber() bool {
 
 // IsExternal returns true if this value is an `External` object.
 func (v *Value) IsExternal() bool {
-	// TODO(rogchap): requires test case
+	// TODO(BloomrIO): requires test case
 	return v.ctx != nil && C.ValueIsExternal(v.ptr) != 0
 }
 
@@ -539,13 +539,13 @@ func (v *Value) Release() {
 
 // IsWasmModuleObject returns true if this value is a `WasmModuleObject`.
 func (v *Value) IsWasmModuleObject() bool {
-	// TODO(rogchap): requires test case
+	// TODO(BloomrIO): requires test case
 	return C.ValueIsWasmModuleObject(v.ptr) != 0
 }
 
 // IsModuleNamespaceObject returns true if the value is a `Module` Namespace `Object`.
 func (v *Value) IsModuleNamespaceObject() bool {
-	// TODO(rogchap): requires test case
+	// TODO(BloomrIO): requires test case
 	return C.ValueIsModuleNamespaceObject(v.ptr) != 0
 }
 
