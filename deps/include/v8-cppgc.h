@@ -77,15 +77,6 @@ struct WrapperDescriptor final {
 };
 
 struct V8_EXPORT CppHeapCreateParams {
-  CppHeapCreateParams(
-      std::vector<std::unique_ptr<cppgc::CustomSpaceBase>> custom_spaces,
-      WrapperDescriptor wrapper_descriptor)
-      : custom_spaces(std::move(custom_spaces)),
-        wrapper_descriptor(wrapper_descriptor) {}
-
-  CppHeapCreateParams(const CppHeapCreateParams&) = delete;
-  CppHeapCreateParams& operator=(const CppHeapCreateParams&) = delete;
-
   std::vector<std::unique_ptr<cppgc::CustomSpaceBase>> custom_spaces;
   WrapperDescriptor wrapper_descriptor;
   /**
@@ -176,11 +167,6 @@ class V8_EXPORT CppHeap {
    */
   void CollectGarbageInYoungGenerationForTesting(
       cppgc::EmbedderStackState stack_state);
-
-  /**
-   * \returns the wrapper descriptor of this CppHeap.
-   */
-  v8::WrapperDescriptor wrapper_descriptor() const;
 
  private:
   CppHeap() = default;
