@@ -104,7 +104,8 @@ current_v8_version_installed = read_v8_version_file(deps_path)
 # latest_v8_info = get_latest_v8_info()
 # latest_stable_v8_version = latest_v8_info[0]["versions"][0]["v8_version"]
 
-latest_stable_v8_version = "10.9.194.9"
+# Hardcoded latest stable version
+latest_stable_v8_version = "11.1.277.133"
 
 if current_v8_version_installed != latest_stable_v8_version:
     subprocess.check_call(["git", "fetch", "origin", latest_stable_v8_version],
